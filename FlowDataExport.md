@@ -1,0 +1,29 @@
+# Introduction #
+
+This chapter contains information on how to configure the export of Flow Data on internetworking devices from Cisco, Juniper and HP. The most popular of which is Cisco NetFlow. Each implementation across the different vendors offer different feature sets. The intension of this guide is to provide a basic manual for Flow Data export. For more detailed manuals, please refer to vendor guides in the  [References](https://code.google.com/p/renisac/wiki/SettingUpNetFlowDataExport?ts=1370808727&updated=SettingUpNetFlowDataExport#References) section.
+
+# NetFlow, sFlow, and J-Flow oh my! #
+
+Here we hope to help you decide which flow technology to choose based on the needs of your organization, we are not aiming to raise one technology over the other but to shed some light on how they work.....
+
+JFlow and SFlow are both IP traffic flow sampling technologies meaning they record every Nth packet in the flow instead of the whole flow. JFlow was developed by Juniper for Juniper switches and routers, while SFlow was developed by Hp and can be used with vendors like Cisco etc (vendor independent). Because JFlow and sFlow are sampler technologies, when enabled on an interface, they allow packets on the input stream to be sampled. As the packets flow through an input stream, the router/switch will examine each one, but only record new packets and discard any packets already seen.
+
+As discussed in previous chapters, JFlow is one of the 3 contending technologies in the flow monitoring space. Another flow monitoring technology is the popular Cisco NetFlow. NetFlow is not a sampling technology, because it records all packets while sFlow and JFlow will only sample incoming traffic based on the packet ratio defined in the router configuration. NetFlow, sFlow, and JFlow each have their own strengths and weaknesses. One may be preferable in certain situations than others.
+
+Depending on the network diameter, you will import and or export network flows that are proportional to the size of your network. Special care should be taken to avoid causing congestion in the network. NetFlow caching and exporting mechanics can be more difficult to implement correctly, because they require more resources to operate especially as it relates to memory  and storage [[1](https://code.google.com/p/renisac/wiki/FlowDataExport!#References)]. NetFlow records the entire flow and not just samples thus it needs more resources. Another problem with NetFlow is as a result of its popularity; there are various implementations of NetFlow out there. Everyone wants to add NetFlow-like support to their routers, switches, firewalls, load-balancers, and WAN optimizers but they don’t always stop and check for compatibilty issues and whether the import and export process is going to work properly [[1](https://code.google.com/p/renisac/wiki/FlowDataExport#References)]. On the other hand, sFlow doesn’t have a problem with standardization,  primarily because so few vendors have implemented it [[1](https://code.google.com/p/renisac/wiki/FlowDataExport#References)].
+
+If you are planning on using the flows you collect for security purposes (forensics), sampling technologies might not be the best way to go. The reason being is that they do not capture the whole story/flow but only samples of the story. For example, if your network becomes a victim of an attack, i.e. a single 2 minute HTTP SQL injection, you need to be able to get the full story including when the injection started to where the code is executed. Tracking down an intrusion that has been done in such a small amount of time might be difficult using sampled data since you only get every Nth packet of the flow. In other words, if you are using a sampling technology (JFlow or sFlow), you will only get bits and pieces of the flow - 1 out of every 128 packets, instead of all 128 packets. Sampling is simply not the best option for network security[[1](https://code.google.com/p/renisac/wiki/FlowDataExport#References)].
+
+
+Another thing to consider is planning for future growth. It is not a myth but a fact that IPv4 addresses has run out of addressing space. The result is increased interest in migrating over to the IPv6 protocol. The ideal flow monitoring protocol should be able to support both versions of IP. As it is now, the innovation on the NetFlow front seems to have outpaced the innovation on the  JFlow and sFlow fronts. NetFlow has evolved from version 1 to version 9 and so has JFlow. Both NetFlow and JFlow v9 have a "variable format" data structure - they are both template based while their previous versions were "fixed format" data structures. This simply means that previous NetFlow versions could not be modified or enhanced to include any new fields. Any attempt to modify the fields would result in corrupt flows that could not be interpreted by the collector. Cisco is moving away from NetFlow v9 to Flexible NetFlow. Flexible NetFlow is an upgraded NetFlow v9 or an extension of NetFlow v9. With Flexible NetFlow (FnF) and user defined templates, you have the ability to export layer 2 information such as MAC address, fragment identification and VLAN ID’s [[2](https://code.google.com/p/renisac/wiki/FlowDataExport#References)].
+sFlow also exports layer2 information but we are not sure if it gives you the flexibility to define or tweak the template (the equivalent to tailor making your flows).
+
+# References #
+
+  1. http://www.plixer.com/blog/netflow/netflow-vs-sflow-for-network-monitoring-and-security-the-final-say/
+  1. http://blog.sflow.com/2012/08/cisco-adds-sflow-support.html
+  1. http://www.plixer.com/blog/scrutinizer/cisco-netflow-layer-2-support/
+  1. http://www.sflow.org/sflow_version_5.txt
+  1. http://www.sflow.org/sFlowOverview.pdf
+  1. http://www.sflow.org/products/network.php
+  1. http://www.manageengine.com/products/netflow/help/cisco-netflow/netflow-ios-versions.html
